@@ -14,9 +14,7 @@ public class ProductoService {
         this.repositorio = repositorio;
     }
 
-    public List<Producto> obtenerProductos() {
-        // Aquí se aplicarían las reglas del catálogo. El repositorio obtiene los datos.
-        // El repositorio obtiene los datos
-        return repositorio.obtenerProductos();
+    public List<Producto> listar() {
+        return repositorio.findAll();
     }
 }

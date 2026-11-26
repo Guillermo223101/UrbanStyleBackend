@@ -41,8 +41,7 @@ public class ProductosController {
     @GetMapping("api/productos")
     public List<Producto> obtenerProductos() {
         // Spring convierte la lista a JSON en la respuesta HTTP.
-        return servicio.obtenerProductos();
+        return servicio.listar();
     }
-    
 
 }

@@ -1,34 +1,41 @@
 package cl.duoc.UrbanStyleBackend.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import lombok.Getter;
 import lombok.Setter;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Getter 
 @Setter
+@Document(collection = "productos")
 public class Producto {
-    @Schema (description = "Identificador único del producto", example = "1")
-    private int id;
-    @Schema (description = "Nombre del producto", example = "Polera Nike")
+    @Id
+    @Schema(description = "Identificador", example = "1")
+    private String id;
+
+    @Schema(description = "Nombre del producto", example = "Polera Nike Essensial")
     private String nombre;
-    @Schema (description = "URL de la imagen del producto", example = "polera1.webp")
-    private String imagen;
-    @Schema (description = "Precio del producto en pesos chilenos (CLP)", example = "29990")
+
+    @Schema(description = "Precio en pesos chilenos", example = "22990")
     private int precio;
 
-    // Jackson usa este constructor para crear un producto a partir del JSON local.
-    @JsonCreator
-    public Producto(
-        @JsonProperty("id") int id,
-        @JsonProperty("nombre") String nombre,
-        @JsonProperty("imagen") String imagen,
-        @JsonProperty("precio") int precio
-    ) {
-        this.id = id;
-        this.nombre = nombre;
-        this.imagen = imagen;
-        this.precio = precio;
-    }
+    @Schema(description = "Categoria del producto", example = "poleras")
+    private String categoria;
+
+    @Schema(description = "Nombre del archivo de imagen", example = "polera1.webp")
+    private String imagen;
+
+    @Schema(description = "Indica si el producto es destacado", example = "true")
+    private boolean destacado;
+
+    @Schema(description = "Tallas disponibles")
+    private List<String> tallas;
+
+    @Schema(description = "Descripcion del producto")
+    private String descripcion;
 }
