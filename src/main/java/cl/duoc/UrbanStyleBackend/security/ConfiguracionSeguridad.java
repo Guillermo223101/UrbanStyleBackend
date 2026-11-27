@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.config.Customizer;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import cl.duoc.UrbanStyleBackend.repository.RepositorioUsuarios;
 
@@ -26,7 +28,8 @@ public class ConfiguracionSeguridad {
     @Bean
     public SecurityFilterChain cadenaSeguridad(
             HttpSecurity http,
-            JwtAuthenticationConverter convertidorJwt)
+            JwtAuthenticationConverter convertidorJwt,
+            UrlBasedCorsConfigurationSource fuenteCors)
             throws Exception {
 
         http
@@ -74,6 +77,8 @@ public class ConfiguracionSeguridad {
                 // Bloquear el resto temporalmente
                 .anyRequest().denyAll()
             )
+            
+            .cors(cors -> cors.configurationSource(fuenteCors))
 
             .csrf(AbstractHttpConfigurer::disable)
 
