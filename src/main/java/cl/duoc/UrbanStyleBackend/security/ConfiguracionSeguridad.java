@@ -1,6 +1,5 @@
 package cl.duoc.UrbanStyleBackend.security;
 
-import cl.duoc.UrbanStyleBackend.service.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,8 +10,13 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import cl.duoc.UrbanStyleBackend.repository.RepositorioUsuarios;
+
+import java.util.List;
 
 import jakarta.servlet.DispatcherType;
 
@@ -20,7 +24,9 @@ import jakarta.servlet.DispatcherType;
 public class ConfiguracionSeguridad {
    
     @Bean
-    public SecurityFilterChain cadenaSeguridad(HttpSecurity http)
+    public SecurityFilterChain cadenaSeguridad(
+            HttpSecurity http,
+            JwtAuthenticationConverter convertidorJwt)
             throws Exception {
 
         http
@@ -77,7 +83,7 @@ public class ConfiguracionSeguridad {
 
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> jwt
-                    .jwtAuthenticationConverter(convertidorJwt())
+                    .jwtAuthenticationConverter(convertidorJwt)
                 )
             )
 
@@ -89,24 +95,41 @@ public class ConfiguracionSeguridad {
     }
 
 
+    
     @Bean
-    public JwtAuthenticationConverter convertidorJwt() {
+    public JwtAuthenticationConverter convertidorJwt(RepositorioUsuarios repositorioUsuarios) {
 
-        JwtGrantedAuthoritiesConverter convertidorRoles = new JwtGrantedAuthoritiesConverter();
+        JwtAuthenticationConverter convertidor = new JwtAuthenticationConverter();
 
-        convertidorRoles.setAuthoritiesClaimName("rol");
+        convertidor.setJwtGrantedAuthoritiesConverter(jwt -> {
 
-        convertidorRoles.setAuthorityPrefix("ROLE_");
+            String idUsuario = jwt.getSubject();
 
-        JwtAuthenticationConverter convertidor =
-                new JwtAuthenticationConverter();
+            if (idUsuario == null || idUsuario.isBlank()) {
+                throw new BadCredentialsException(
+                    "Token no valido"
+                );
+            }
 
-        convertidor.setJwtGrantedAuthoritiesConverter(
-            convertidorRoles
-        );
+            var usuario = repositorioUsuarios.findById(idUsuario)
+                    .orElseThrow(() -> new BadCredentialsException(
+                        "Usuario no autorizado"
+                    ));
+
+            if (!usuario.isActivo() || usuario.getRol() == null) {
+                throw new BadCredentialsException(
+                    "Usuario no autorizado"
+                );
+            }
+
+            String rolActual = usuario.getRol().name();
+
+            return List.<GrantedAuthority>of(new SimpleGrantedAuthority("ROLE_" + rolActual));
+        });
 
         return convertidor;
     }
+
 
 
     @Bean
