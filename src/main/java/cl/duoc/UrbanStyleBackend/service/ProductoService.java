@@ -50,4 +50,8 @@ public class ProductoService {
         repositorio.deleteById(id);
         return true;
     }
+
+    public Optional<Producto> obtenerPorId(String id){
+        return repositorio.findById(id);
+    }
 }

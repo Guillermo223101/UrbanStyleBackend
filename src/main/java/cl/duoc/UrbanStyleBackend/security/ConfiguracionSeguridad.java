@@ -39,7 +39,8 @@ public class ConfiguracionSeguridad {
                 .requestMatchers(
                     HttpMethod.GET,
                     "/api/productos",
-                    "/api/v1/productos"
+                    "/api/v1/productos",
+                    "/api/v1/productos/**"
                 ).permitAll()
 
                 // Documentacion Swagger

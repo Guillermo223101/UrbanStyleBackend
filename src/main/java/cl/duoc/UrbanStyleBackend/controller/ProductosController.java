@@ -113,4 +113,23 @@ public class ProductosController {
 
         return ResponseEntity.notFound().build();
     }
+
+
+    @Operation(
+        summary = "Obtener producto por ID",
+        description = "Consulta los detalles de un producto especifico"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Producto encontrado"
+    )
+    @ApiResponse(
+        responseCode = "404",
+        description = "Producto no encontrado"
+    )
+    @GetMapping("/api/v1/productos/{id}")
+    public ResponseEntity<Producto> obtenerProductoPorId(@PathVariable String id) {
+        return ResponseEntity.of(servicio.obtenerPorId(id));
+    }
+
 }
