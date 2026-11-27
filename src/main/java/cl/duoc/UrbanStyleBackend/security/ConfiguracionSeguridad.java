@@ -73,6 +73,16 @@ public class ConfiguracionSeguridad {
                     "/api/v1/productos/*"
                 ).hasRole("ADMIN")
 
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/api/v1/pedidos"
+                ).hasAnyRole("CLIENTE", "ADMIN")
+
+                .requestMatchers( //CONSULTAR
+                    HttpMethod.GET,
+                    "/api/v1/pedidos",
+                    "/api/v1/pedidos/*"
+                ).hasAnyRole("VENDEDOR", "ADMIN")
 
                 // Bloquear el resto temporalmente
                 .anyRequest().denyAll()
