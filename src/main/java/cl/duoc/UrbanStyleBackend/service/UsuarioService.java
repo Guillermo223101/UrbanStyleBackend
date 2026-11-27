@@ -53,4 +53,34 @@ public class UsuarioService {
 
         return repositorioUsuarios.save(usuarioNuevo);
     }
+
+    public Usuario autenticarUsuario(String correo, String contrasena) {
+
+    if (correo == null || correo.isBlank()
+            || contrasena == null || contrasena.isBlank()) {
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas");
+    }
+
+    String correoNormalizado = correo.trim().toLowerCase(Locale.ROOT);
+
+    Usuario usuarioEncontrado = repositorioUsuarios
+            .findByCorreo(correoNormalizado)
+            .orElseThrow(() -> 
+                new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas"));
+
+    // Comprobar que la cuenta este activa
+    if (!usuarioEncontrado.isActivo()) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas");
+    }
+
+    if (!codificadorContrasenas.matches(
+            contrasena,
+            usuarioEncontrado.getContrasenaHash())) {
+
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas");
+    }
+
+    return usuarioEncontrado;
+}
 }

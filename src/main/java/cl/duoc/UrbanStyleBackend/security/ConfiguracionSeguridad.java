@@ -38,7 +38,8 @@ public class ConfiguracionSeguridad {
                 // Registro publico de usuarios
                 .requestMatchers(
                     HttpMethod.POST,
-                    "/api/v1/autenticacion/registro"
+                    "/api/v1/autenticacion/registro",
+                    "/api/v1/autenticacion/login"
                 ).permitAll()
 
 
@@ -47,7 +48,8 @@ public class ConfiguracionSeguridad {
             )
 
             .csrf(csrf -> csrf.ignoringRequestMatchers(
-                "/api/v1/autenticacion/registro"
+                "/api/v1/autenticacion/registro",
+                "/api/v1/autenticacion/login"
             ))
 
             // Desactivar login predeterminado

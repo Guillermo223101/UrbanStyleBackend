@@ -2,6 +2,7 @@ package cl.duoc.UrbanStyleBackend.controller;
 
 import cl.duoc.UrbanStyleBackend.model.Usuario;
 import cl.duoc.UrbanStyleBackend.service.UsuarioService;
+import cl.duoc.UrbanStyleBackend.service.JwtService;
 
 import java.util.Map;
 
@@ -17,10 +18,16 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping ("/api/v1/autenticacion")
 @Tag (name = "Autenticacion", description = "Registro e inicio de sesion")
 public class AutenticacionController {
-    private final UsuarioService servicio;
 
-    public AutenticacionController(UsuarioService sercio){
-        this.servicio = sercio;
+    private final UsuarioService servicio;
+    private final JwtService jwtServicio;
+
+    public AutenticacionController(
+            UsuarioService servicio,
+            JwtService jwtServicio
+        ){
+            this.servicio = servicio;
+            this.jwtServicio = jwtServicio;
     }
 
     //Datos que recibimos desde el formulario
@@ -29,6 +36,12 @@ public class AutenticacionController {
         String correo,
         String contrasena
     ) {}
+
+    public record DatosLogin(
+        String correo,
+        String contrasena
+    ) {}
+
 
     @Operation(
         summary = "Registrar usuario",
@@ -59,4 +72,41 @@ public class AutenticacionController {
                 .status(HttpStatus.CREATED)
                 .body(respuesta);
     }
+
+
+    @Operation(
+        summary = "Iniciar sesion",
+        description = "Verifica las credenciales y genera un token JWT"
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Inicio de sesion correcto"
+    )
+    @ApiResponse(
+        responseCode = "401",
+        description = "Credenciales invalidas"
+    )
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> iniciarSesion(
+            @RequestBody DatosLogin datos) {
+
+        // Autenticar al usuario
+        Usuario usuario = servicio.autenticarUsuario(
+            datos.correo(),
+            datos.contrasena()
+        );
+
+        // Generar un token JWT
+        String token = jwtServicio.generarToken(usuario);
+
+        // Preparar respuesta
+        Map<String, String> respuesta = Map.of(
+            "token", token,
+            "tipo", "Bearer",
+            "rol", usuario.getRol().name()
+        );
+
+        return ResponseEntity.ok(respuesta);
+    }
+
 }
